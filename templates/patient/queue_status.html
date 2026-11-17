@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}My queue{% endblock %}
+{% block content %}
+<div class="mb-4"><h1 class="page-title">My Queue</h1><p class="page-sub">This page refreshes automatically every 15 seconds.</p></div>
+<div id="queue-live" data-autorefresh="15"><div class="row g-4">
+  <div class="col-lg-6"><div class="big-ticket">
+    {% if entry %}<div class="opacity-75">Your queue number</div><div class="num">{{ entry.code }}</div><div class="fs-5 mt-2">{{ entry.status|title }}</div>
+    {% else %}<i class="bi bi-people fs-1"></i><div class="fs-5 mt-2">You are not in today's queue</div>{% endif %}</div></div>
+  <div class="col-lg-6"><div class="cf-card h-100"><div class="cf-card-header"><h5><i class="bi bi-info-circle"></i> Status</h5></div><div class="cf-card-body">
+    <div class="d-flex justify-content-between py-2 border-bottom"><span class="muted">Now serving</span><b>{{ serving.code if serving else '—' }}</b></div>
+    {% if entry %}
+      <div class="d-flex justify-content-between py-2 border-bottom"><span class="muted">Patients ahead of you</span><b>{{ ahead if entry.status == 'waiting' else 0 }}</b></div>
+      <div class="d-flex justify-content-between py-2 border-bottom"><span class="muted">Estimated wait</span><b>{{ ('~' ~ eta ~ ' min') if entry.status == 'waiting' else 'Your turn' }}</b></div>
+      <div class="d-flex justify-content-between py-2"><span class="muted">Registered at</span><b>{{ entry.created_at.strftime('%I:%M %p') }}</b></div>
+      {% if entry.status == 'serving' %}<div class="alert alert-success mt-3 mb-0"><i class="bi bi-megaphone me-1"></i>You are being called. Please proceed to the consultation room.</div>{% endif %}
+    {% elif todays %}<div class="alert alert-info mt-3 mb-0">You have an appointment today at <b>{{ todays.appointment_time|fmt_time }}</b> ({{ todays.status }}). Please check in at the front desk to receive your queue number.</div>
+    {% else %}<p class="muted mt-3 mb-0">Walk in or book an appointment to receive a queue number.</p>{% endif %}
+  </div></div></div>
+</div></div>
+{% endblock %}

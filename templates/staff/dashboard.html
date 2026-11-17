@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Dashboard{% endblock %}
+{% block head %}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>{% endblock %}
+{% block content %}
+{{ m.welcome('Hello, ' ~ current_user.staff.title_name ~ '!', "Here's your queue and schedule for today.") }}
+<div class="stat-grid">
+  {{ m.stat('bi-people-fill', stats.total_patients, 'Total Patients', 'blue') }}
+  {{ m.stat('bi-calendar-check-fill', stats.todays_appointments, "Today's Appointments", 'pink') }}
+  {{ m.stat('bi-clock-fill', stats.waiting, 'Waiting in Queue', 'orange') }}
+  {{ m.stat('bi-person-fill-check', stats.serving, 'Currently Serving', 'purple') }}
+  {{ m.stat('bi-check-circle-fill', stats.completed, 'Completed Today', 'teal') }}
+</div>
+<div class="row g-4">
+  <div class="col-xl-7">{{ m.appointments_card(appointments) }}</div>
+  <div class="col-xl-5">{{ m.queue_card(serving, stats, waiting_list) }}</div>
+  <div class="col-xl-7"><div class="cf-card h-100"><div class="cf-card-header"><h5><i class="bi bi-exclamation-triangle"></i> System Alerts</h5>
+      <small class="muted">Click an alert to open it</small></div>
+    <div class="cf-card-body">
+      {% for a in alerts %}
+        {% if a.url %}<a class="alert-item {{ a.level }}" href="{{ a.url }}">{% else %}<div class="alert-item {{ a.level }}">{% endif %}
+          <i class="bi {{ a.icon }} fs-5"></i>
+          <span class="flex-grow-1"><b>{{ a.title }}</b>{% if a.detail %}<br><small>{{ a.detail }}</small>{% endif %}</span>
+          {% if a.count %}<span class="alert-count">{{ a.count }}</span>{% endif %}
+          {% if a.url %}<i class="bi bi-chevron-right"></i>{% endif %}
+        {% if a.url %}</a>{% else %}</div>{% endif %}
+      {% endfor %}
+    </div></div></div>
+  <div class="col-xl-5"><div class="cf-card h-100"><div class="cf-card-header"><h5><i class="bi bi-lightning"></i> Quick Actions</h5></div>
+    <div class="cf-card-body d-grid gap-2">
+      <form method="post" action="{{ url_for('queue.call_next') }}" class="d-grid">{{ m.csrf() }}<button class="btn btn-teal" type="submit"><i class="bi bi-megaphone me-1"></i>Call next patient</button></form>
+      <a class="btn btn-outline-teal" href="{{ url_for('queue.index') }}"><i class="bi bi-person-plus me-1"></i>Register walk-in</a>
+      <a class="btn btn-outline-teal" href="{{ url_for('appointments.index', status='pending', mine=1) }}"><i class="bi bi-calendar-check me-1"></i>Review pending requests</a>
+      <a class="btn btn-outline-teal" href="{{ url_for('records.create') }}"><i class="bi bi-file-earmark-plus me-1"></i>New consultation</a>
+      <a class="btn btn-outline-teal" href="{{ url_for('chat.index') }}"><i class="bi bi-chat-dots me-1"></i>Messages{% if chat_unread %} <span class="unread-dot ms-1">{{ chat_unread }}</span>{% endif %}</a></div></div></div>
+  <div class="col-12">{{ m.visits_card() }}</div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/charts.js') }}"></script>{% endblock %}

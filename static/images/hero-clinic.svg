@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 440">
+  <path d="M60 230C40 120 150 30 270 40s210 70 200 180-90 190-210 185S80 340 60 230z" fill="#D9F0EF"/>
+  <circle cx="440" cy="90" r="14" fill="#FFD66B"/><circle cx="82" cy="330" r="9" fill="#FFB3A7"/>
+  <!-- clinic building -->
+  <rect x="120" y="170" width="240" height="190" rx="10" fill="#fff" stroke="#12344B" stroke-width="4"/>
+  <rect x="104" y="150" width="272" height="34" rx="8" fill="#0B9C9A" stroke="#12344B" stroke-width="4"/>
+  <rect x="226" y="108" width="28" height="64" rx="5" fill="#fff" stroke="#12344B" stroke-width="4"/>
+  <rect x="208" y="126" width="64" height="28" rx="5" fill="#fff" stroke="#12344B" stroke-width="4"/>
+  <rect x="233" y="115" width="14" height="50" fill="#E5484D"/><rect x="215" y="133" width="50" height="14" fill="#E5484D"/>
+  <rect x="146" y="205" width="52" height="46" rx="6" fill="#EAF5FA" stroke="#12344B" stroke-width="3"/>
+  <rect x="282" y="205" width="52" height="46" rx="6" fill="#EAF5FA" stroke="#12344B" stroke-width="3"/>
+  <path d="M172 205v46M146 228h52M308 205v46M282 228h52" stroke="#12344B" stroke-width="2"/>
+  <rect x="210" y="262" width="60" height="98" rx="6" fill="#087E8B" stroke="#12344B" stroke-width="4"/>
+  <circle cx="258" cy="314" r="4" fill="#fff"/>
+  <path d="M100 360h280" stroke="#12344B" stroke-width="5" stroke-linecap="round"/>
+  <!-- plants -->
+  <rect x="86" y="334" width="26" height="26" rx="4" fill="#E8A87C" stroke="#12344B" stroke-width="3"/>
+  <path d="M99 334c-14-18-10-34-2-46 4 14 14 22 2 46zM99 334c12-14 22-18 28-34-16 4-28 16-28 34z" fill="#5DBB63" stroke="#12344B" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- doctor -->
+  <g transform="translate(372 232)">
+    <rect x="0" y="52" width="64" height="76" rx="22" fill="#fff" stroke="#12344B" stroke-width="4"/>
+    <circle cx="32" cy="26" r="24" fill="#F6C9A4" stroke="#12344B" stroke-width="4"/>
+    <path d="M8 22c2-22 46-26 48 0-12-8-30-10-48 0z" fill="#12344B"/>
+    <path d="M22 64c0 26 20 26 20 0" fill="none" stroke="#0B9C9A" stroke-width="4"/>
+    <circle cx="32" cy="92" r="6" fill="#0B9C9A" stroke="#12344B" stroke-width="2.5"/>
+    <circle cx="25" cy="28" r="2.5" fill="#12344B"/><circle cx="40" cy="28" r="2.5" fill="#12344B"/>
+    <path d="M26 37q6 5 12 0" stroke="#12344B" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  </g>
+  <!-- calendar card -->
+  <g transform="rotate(-6 150 90)"><rect x="52" y="52" width="150" height="104" rx="14" fill="#fff" stroke="#12344B" stroke-width="4"/>
+    <rect x="52" y="52" width="150" height="30" rx="14" fill="#12344B"/><rect x="52" y="68" width="150" height="14" fill="#12344B"/>
+    <path d="M86 40v24M168 40v24" stroke="#12344B" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="86" cy="106" r="6" fill="#D9F0EF"/><circle cx="112" cy="106" r="6" fill="#D9F0EF"/><circle cx="138" cy="106" r="6" fill="#D9F0EF"/>
+    <circle cx="86" cy="130" r="6" fill="#D9F0EF"/><circle cx="112" cy="130" r="9" fill="#0B9C9A"/><path d="M107 130l4 4 7-8" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="138" cy="130" r="6" fill="#D9F0EF"/></g>
+  <!-- heartbeat -->
+  <path d="M300 74h30l10-22 14 44 10-22h40" fill="none" stroke="#E5484D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

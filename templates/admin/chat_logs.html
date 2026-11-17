@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Chat logs{% endblock %}
+{% block content %}
+<div class="mb-4"><h1 class="page-title">Chat Logs</h1><p class="page-sub">Read-only record of patient and staff conversations. Opening a conversation is saved in the activity log.</p></div>
+<div class="cf-card"><div class="cf-card-body pt-3">
+  <form class="row g-2 mb-3" method="get"><div class="col-md-6 col-lg-4"><input class="form-control" type="search" name="q" value="{{ q }}" placeholder="Search patient or staff name" aria-label="Search chats"></div>
+    <div class="col-auto"><button class="btn btn-navy" type="submit"><i class="bi bi-search me-1"></i>Search</button>{% if q %}<a class="btn btn-outline-secondary ms-1" href="{{ url_for('admin.chat_logs') }}">Clear</a>{% endif %}</div></form>
+  {% if conversations %}<div class="table-wrap"><table class="cf-table">
+    <thead><tr><th>Patient</th><th>Doctor / nurse</th><th>Messages</th><th>Last message</th><th>When</th><th></th></tr></thead><tbody>
+    {% for c in conversations %}<tr><td class="fw-semibold">{{ c.patient.full_name }}</td><td>{{ c.staff.title_name }}</td><td>{{ c.count }}</td>
+      <td>{{ c.last.body|truncate(50) }}</td><td class="text-nowrap">{{ c.last.created_at|fmt_dt }}</td>
+      <td class="text-end"><a class="btn btn-sm btn-outline-teal" href="{{ url_for('admin.chat_thread', patient_id=c.patient.id, staff_id=c.staff.id) }}"><i class="bi bi-eye me-1"></i>View</a></td></tr>{% endfor %}
+    </tbody></table></div>
+  {% else %}{{ m.empty('bi-chat-left-text', 'No conversations recorded yet.') }}{% endif %}
+</div></div>
+{% endblock %}

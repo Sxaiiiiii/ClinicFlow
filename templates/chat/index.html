@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Messages{% endblock %}
+{% block content %}
+<div class="mb-3"><h1 class="page-title">Messages</h1>
+  <p class="page-sub">{{ 'Ask your doctor or nurse a follow-up question.' if is_patient else 'Answer follow-up questions from your patients.' }}</p></div>
+<div class="alert alert-info d-flex gap-2 align-items-start"><i class="bi bi-info-circle mt-1"></i>
+  <span>{% if is_patient %}Chat opens with a doctor or nurse <b>after your appointment with them is completed</b>, so you can ask follow-up questions about your visit.
+  {% else %}You can message a patient <b>after you have completed their appointment or visit</b>. Only patients with an online account can chat.{% endif %}</span></div>
+<div class="row g-4">
+  <div class="col-lg-8"><div class="cf-card h-100"><div class="cf-card-header"><h5><i class="bi bi-chat-dots"></i> Conversations</h5></div>
+    <div class="cf-card-body">
+      {% if conversations %}<div class="convo-list">
+        {% for c in conversations %}
+        <a class="convo" href="{{ url_for('chat.thread', other_id=c.other.id) }}">
+          <span class="avatar">{{ c.other.first_name[0] }}</span>
+          <span class="convo-main"><b>{{ c.other.title_name if is_patient else c.other.full_name }}</b>
+            <span class="convo-last">{{ 'You: ' if c.last.sender_user_id == current_user.id }}{{ c.last.body|truncate(70) }}</span></span>
+          <span class="convo-side"><small class="muted">{{ c.last.created_at|fmt_date }}</small>{% if c.unread %}<span class="unread-dot">{{ c.unread }}</span>{% endif %}</span>
+        </a>{% endfor %}</div>
+      {% else %}{{ m.empty('bi-chat-dots', 'No conversations yet.') }}{% endif %}
+    </div></div></div>
+  <div class="col-lg-4"><div class="cf-card h-100"><div class="cf-card-header"><h5><i class="bi bi-pencil-square"></i> {{ 'Your doctors &amp; nurses'|safe if is_patient else 'Your patients' }}</h5></div>
+    <div class="cf-card-body">
+      {% if people %}
+      <label class="form-label" for="newChatSelect">{{ 'Choose who to message' }}</label>
+      <select class="form-select" id="newChatSelect" data-base="{{ url_for('chat.index') }}with/">
+        <option value="">Select…</option>
+        {% for p in people %}<option value="{{ p.id }}">{{ p.label }} · seen {{ p.last_visit|fmt_date }}</option>{% endfor %}
+      </select>
+      <button class="btn btn-teal w-100 mt-3" type="button" id="startChatBtn"><i class="bi bi-chat-text me-1"></i>Open chat</button>
+      {% else %}{{ m.empty('bi-lock', 'Nobody to message yet. Chat unlocks after a completed appointment.' if is_patient else 'No patients yet. They appear here after you complete their appointment.') }}{% endif %}
+      <p class="small muted mt-3 mb-0"><i class="bi bi-exclamation-triangle me-1"></i>For emergencies, do not use chat. Call your local emergency number or go to the nearest clinic.</p>
+    </div></div></div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/chat.js') }}"></script>{% endblock %}

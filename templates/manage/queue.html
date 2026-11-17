@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Queue management{% endblock %}
+{% macro actions(e) %}
+  {% if not e.can_be_managed_by(current_user) %}<span class="muted small" title="Only {{ e.staff.title_name }} or an admin can change this"><i class="bi bi-lock-fill"></i> {{ e.staff.title_name }}</span>{% else %}
+  {% if e.status == 'waiting' %}
+    <form class="d-inline" method="post" action="{{ url_for('queue.update', entry_id=e.id, action='serve') }}">{{ m.csrf() }}<button class="btn btn-sm btn-teal" type="submit" title="Call this patient"><i class="bi bi-megaphone"></i> Call</button></form>
+  {% elif e.status == 'serving' %}
+    {% if current_user.role in ('doctor','nurse') %}<a class="btn btn-sm btn-outline-teal" href="{{ url_for('records.create', patient_id=e.patient_id, queue_id=e.id) }}" title="Record consultation"><i class="bi bi-file-earmark-plus"></i></a>{% endif %}
+    <form class="d-inline" method="post" action="{{ url_for('queue.update', entry_id=e.id, action='complete') }}">{{ m.csrf() }}<button class="btn btn-sm btn-success" type="submit"><i class="bi bi-check2"></i> Complete</button></form>
+  {% endif %}
+  {% if e.status in ('waiting','serving') %}
+    <form class="d-inline" method="post" action="{{ url_for('queue.update', entry_id=e.id, action='cancel') }}" data-confirm="Cancel {{ e.code }} for {{ e.patient.full_name }}?">{{ m.csrf() }}<button class="btn btn-sm btn-outline-danger" type="submit" title="Cancel"><i class="bi bi-x-lg"></i></button></form>
+  {% endif %}
+  {% endif %}
+{% endmacro %}
+{% macro table(entries, empty_text) %}
+  {% if entries %}<div class="table-wrap"><table class="cf-table">
+    <thead><tr><th>No.</th><th>Patient</th><th>Reason</th><th>Type</th><th>Wait</th><th>Served by</th><th class="text-end">Actions</th></tr></thead>
+    <tbody>{% for e in entries %}<tr>
+      <td class="fw-bold">{{ e.code }}</td>
+      <td><a class="text-decoration-none fw-semibold" href="{{ url_for('patients.detail', patient_id=e.patient_id) }}">{{ e.patient.full_name }}</a></td>
+      <td>{{ e.reason }}</td><td>{{ m.badge(e.entry_type) }}</td>
+      <td>{{ e.waited_minutes }} min</td><td>{{ e.staff.title_name if e.staff else '—' }}</td>
+      <td class="text-end text-nowrap">{{ actions(e) }}</td></tr>{% endfor %}</tbody></table></div>
+  {% else %}{{ m.empty('bi-inbox', empty_text) }}{% endif %}
+{% endmacro %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div><h1 class="page-title">Queue Management</h1><p class="page-sub">{{ today|fmt_date }} · queue numbers restart every day.</p></div>
+  <div class="d-flex flex-wrap gap-2">
+    <form method="post" action="{{ url_for('queue.call_next') }}">{{ m.csrf() }}<button class="btn btn-teal" type="submit"><i class="bi bi-megaphone me-1"></i>Call next patient</button></form>
+    <button class="btn btn-outline-teal" data-bs-toggle="modal" data-bs-target="#walkinModal"><i class="bi bi-person-plus me-1"></i>Walk-in patient</button>
+    <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#scheduledModal"><i class="bi bi-calendar-check me-1"></i>Add scheduled ({{ scheduled|length }})</button>
+  </div>
+</div>
+
+<form class="row g-2 mb-3" method="get">
+  <div class="col-md-5 col-lg-4"><input class="form-control" type="search" name="q" value="{{ q }}" placeholder="Search name, patient no. or Q-number" aria-label="Search queue"></div>
+  <div class="col-md-3"><select class="form-select" name="status" aria-label="Status filter"><option value="">All statuses</option>
+    {% for s in ['waiting','serving','completed','cancelled'] %}<option value="{{ s }}" {{ 'selected' if status == s }}>{{ s|title }}</option>{% endfor %}</select></div>
+  <div class="col-auto d-flex align-items-center">{% if current_user.role in ('doctor', 'nurse') %}<div class="form-check mb-0"><input class="form-check-input" type="checkbox" name="mine" value="1" id="mine" {{ 'checked' if mine }}><label class="form-check-label" for="mine">Only mine &amp; unassigned</label></div>{% endif %}</div>
+    <div class="col-auto"><button class="btn btn-navy" type="submit"><i class="bi bi-funnel me-1"></i>Filter</button>
+    <a class="btn btn-outline-secondary" href="{{ url_for('queue.index') }}">Reset</a></div>
+</form>
+
+<div id="queue-live" data-autorefresh="20">
+  <div class="row g-4">
+    <div class="col-12"><div class="cf-card"><div class="cf-card-header"><h5><i class="bi bi-person-check"></i> Currently serving <span class="badge-status s-serving ms-2">{{ groups.serving|length }}</span></h5></div>
+      <div class="cf-card-body">{{ table(groups.serving, 'Nobody is being served right now.') }}</div></div></div>
+    <div class="col-12"><div class="cf-card"><div class="cf-card-header"><h5><i class="bi bi-hourglass-split"></i> Waiting <span class="badge-status s-waiting ms-2">{{ groups.waiting|length }}</span></h5></div>
+      <div class="cf-card-body">{{ table(groups.waiting, 'No patients are waiting.') }}</div></div></div>
+    <div class="col-12"><div class="cf-card"><div class="cf-card-header"><h5><i class="bi bi-check-circle"></i> Completed <span class="badge-status s-completed ms-2">{{ groups.completed|length }}</span></h5></div>
+      <div class="cf-card-body">{{ table(groups.completed, 'No completed visits yet today.') }}</div></div></div>
+    {% if groups.cancelled %}<div class="col-12"><div class="cf-card"><div class="cf-card-header"><h5><i class="bi bi-x-circle"></i> Cancelled <span class="badge-status s-cancelled ms-2">{{ groups.cancelled|length }}</span></h5></div>
+      <div class="cf-card-body">{{ table(groups.cancelled, '') }}</div></div></div>{% endif %}
+  </div>
+</div>
+
+<div class="modal fade" id="walkinModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content">
+  <form method="post" action="{{ url_for('queue.walk_in') }}" class="needs-validation" novalidate>{{ m.csrf() }}
+    <div class="modal-header"><h2 class="modal-title h5">Register walk-in patient</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body"><div class="row g-3">
+      <div class="col-12"><label class="form-label" for="walkinPatient">Patient</label>
+        <select class="form-select" id="walkinPatient" name="patient_id"><option value="">+ New patient (fill in details below)</option>
+          {% for p in patients %}<option value="{{ p.id }}">{{ p.last_name }}, {{ p.first_name }} ({{ p.patient_no }})</option>{% endfor %}</select></div>
+      <div class="col-12" id="walkinNewFields"><div class="row g-3">
+        <div class="col-md-4"><label class="form-label" for="w_first">First name *</label><input class="form-control" id="w_first" name="first_name" data-req minlength="2" maxlength="50" pattern="[A-Za-zÀ-ÿñÑ][A-Za-zÀ-ÿñÑ .'\-]+"><div class="invalid-feedback">Letters only.</div></div>
+        <div class="col-md-4"><label class="form-label" for="w_mid">Middle name</label><input class="form-control" id="w_mid" name="middle_name" maxlength="50"></div>
+        <div class="col-md-4"><label class="form-label" for="w_last">Last name *</label><input class="form-control" id="w_last" name="last_name" data-req minlength="2" maxlength="50" pattern="[A-Za-zÀ-ÿñÑ][A-Za-zÀ-ÿñÑ .'\-]+"><div class="invalid-feedback">Letters only.</div></div>
+        <div class="col-md-4"><label class="form-label" for="w_dob">Date of birth *</label><input class="form-control" type="date" id="w_dob" name="date_of_birth" data-req max="{{ today.isoformat() }}"></div>
+        <div class="col-md-4"><label class="form-label" for="w_gender">Gender *</label><select class="form-select" id="w_gender" name="gender" data-req><option value="">Select…</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+        <div class="col-md-4"><label class="form-label" for="w_phone">Contact number *</label><input class="form-control" id="w_phone" name="contact_number" data-req pattern="(\+63|0)9\d{9}" placeholder="09171234567"><div class="invalid-feedback">PH mobile number.</div></div>
+        <div class="col-md-6"><label class="form-label" for="w_email">Email</label><input class="form-control" type="email" id="w_email" name="email"></div>
+        <div class="col-md-6"><label class="form-label" for="w_addr">Address *</label><input class="form-control" id="w_addr" name="address" data-req minlength="5" maxlength="255"></div>
+      </div></div>
+      <div class="col-md-8"><label class="form-label" for="w_reason">Reason for visit *</label><input class="form-control" id="w_reason" name="reason" required minlength="3" maxlength="255"><div class="invalid-feedback">Enter the reason (3+ characters).</div></div>
+      <div class="col-md-4"><label class="form-label" for="w_staff">Preferred doctor</label><select class="form-select" id="w_staff" name="staff_id"><option value="">Any available</option>{% for d in doctors %}<option value="{{ d.id }}">{{ d.title_name }}</option>{% endfor %}</select></div>
+    </div></div>
+    <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-teal" type="submit">Add to queue</button></div>
+  </form></div></div></div>
+
+<div class="modal fade" id="scheduledModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content">
+  <div class="modal-header"><h2 class="modal-title h5">Today's confirmed appointments</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+  <div class="modal-body">{% if scheduled %}<div class="table-wrap"><table class="cf-table"><thead><tr><th>Time</th><th>Patient</th><th>Reason</th><th></th></tr></thead><tbody>
+    {% for a in scheduled %}<tr><td>{{ a.appointment_time|fmt_time }}</td><td>{{ a.patient.full_name }}</td><td>{{ a.reason }}</td>
+      <td class="text-end"><form method="post" action="{{ url_for('queue.add_scheduled', appointment_id=a.id) }}">{{ m.csrf() }}<button class="btn btn-sm btn-teal" type="submit"><i class="bi bi-plus-lg"></i> Add to queue</button></form></td></tr>{% endfor %}
+    </tbody></table></div>{% else %}{{ m.empty('bi-calendar2-check', 'No confirmed appointments waiting to be queued. Confirm requests on the Appointments page first.') }}{% endif %}</div>
+</div></div></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/queue.js') }}"></script>{% endblock %}

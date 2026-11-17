@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Chat with {{ other_name }}{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center gap-3 mb-3">
+  <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('chat.index') }}" aria-label="Back to messages"><i class="bi bi-arrow-left"></i></a>
+  <span class="avatar">{{ other_name.replace('Dr. ', '')[0] }}</span>
+  <div><h1 class="page-title fs-4">{{ other_name }}</h1><p class="page-sub">{{ other_role }}</p></div>
+</div>
+<div class="chat-card" id="chatBox" data-poll-url="{{ url_for('chat.messages', other_id=other_id) }}"
+     data-last-id="{{ last_id }}" data-last-date="{{ last_date }}">
+  <div class="chat-messages" id="chatMessages">
+    {% set ns = namespace(last_date='') %}
+    {% for msg in messages %}
+      {% if msg.date != ns.last_date %}<div class="chat-date"><span>{{ msg.date }}</span></div>{% set ns.last_date = msg.date %}{% endif %}
+      <div class="msg {{ 'mine' if msg.mine else 'theirs' }}" data-id="{{ msg.id }}"><div class="bubble">{{ msg.body }}</div><div class="meta">{{ msg.time }}</div></div>
+    {% endfor %}
+    {% if not messages %}<div class="chat-empty" id="chatEmpty"><i class="bi bi-chat-heart"></i>No messages yet. Say hello!</div>{% endif %}
+  </div>
+  <div class="alert alert-danger py-2 mx-3 d-none" id="chatError" role="alert"></div>
+  <form class="chat-form" id="chatForm" method="post" action="{{ url_for('chat.send', other_id=other_id) }}">
+    {{ m.csrf() }}
+    <textarea class="form-control" name="body" rows="1" maxlength="1000" placeholder="Type a message…" aria-label="Message" required></textarea>
+    <button class="btn btn-teal" type="submit" aria-label="Send"><i class="bi bi-send-fill"></i></button>
+  </form>
+</div>
+<p class="small muted mt-2"><i class="bi bi-shield-lock me-1"></i>Messages are private between you and the clinic and may be reviewed by clinic administrators. For emergencies, call your local emergency number.</p>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/chat.js') }}"></script>{% endblock %}

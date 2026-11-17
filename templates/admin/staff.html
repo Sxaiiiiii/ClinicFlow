@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Staff management{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div><h1 class="page-title">Staff Management</h1><p class="page-sub">Doctor and nurse accounts are created here by the administrator.</p></div>
+  <button class="btn btn-teal" id="newStaffBtn" data-bs-toggle="modal" data-bs-target="#staffModal"><i class="bi bi-person-plus me-1"></i>Add staff</button>
+</div>
+<div class="cf-card"><div class="cf-card-body pt-3">
+  <form class="row g-2 mb-3" method="get"><div class="col-md-6 col-lg-4"><input class="form-control" type="search" name="q" value="{{ q }}" placeholder="Search name, email or employee no." aria-label="Search staff"></div>
+    <div class="col-auto"><button class="btn btn-navy" type="submit"><i class="bi bi-search me-1"></i>Search</button>{% if q %}<a class="btn btn-outline-secondary ms-1" href="{{ url_for('admin.staff_list') }}">Clear</a>{% endif %}</div></form>
+  {% if members %}<div class="table-wrap"><table class="cf-table">
+    <thead><tr><th>Emp. No.</th><th>Name</th><th>Role</th><th>Specialization</th><th>Email</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+    <tbody>{% for s in members %}<tr>
+      <td>{{ s.employee_no }}</td><td class="fw-semibold">{{ s.title_name }}</td><td>{{ s.user.role_label }}</td><td>{{ s.specialization or '—' }}</td>
+      <td>{{ s.user.email }}</td><td>{{ m.badge('active' if s.user.active else 'inactive') }}</td>
+      <td class="text-end text-nowrap">
+        <button class="btn btn-sm btn-outline-secondary js-edit-staff" type="button" data-bs-toggle="modal" data-bs-target="#staffModal" title="Edit"
+          data-id="{{ s.id }}" data-first="{{ s.first_name }}" data-last="{{ s.last_name }}" data-email="{{ s.user.email }}" data-contact="{{ s.contact_number or '' }}" data-spec="{{ s.specialization or '' }}" data-role="{{ s.user.role }}"><i class="bi bi-pencil"></i></button>
+        {% if s.user_id != current_user.id %}
+        <form class="d-inline" method="post" action="{{ url_for('admin.staff_toggle', staff_id=s.id) }}">{{ m.csrf() }}<button class="btn btn-sm btn-outline-{{ 'warning' if s.user.active else 'success' }}" type="submit" title="{{ 'Deactivate' if s.user.active else 'Activate' }}"><i class="bi bi-{{ 'pause-circle' if s.user.active else 'play-circle' }}"></i></button></form>
+        {% if s.user.role != 'admin' %}<form class="d-inline" method="post" action="{{ url_for('admin.staff_delete', staff_id=s.id) }}" data-confirm="Delete {{ s.full_name }}'s account?">{{ m.csrf() }}<button class="btn btn-sm btn-outline-danger" type="submit" title="Delete"><i class="bi bi-trash"></i></button></form>{% endif %}
+        {% endif %}</td></tr>{% endfor %}</tbody></table></div>
+  {% else %}{{ m.empty('bi-person-badge', 'No staff found.') }}{% endif %}
+</div></div>
+
+<div class="modal fade" id="staffModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content">
+  <form method="post" action="{{ url_for('admin.staff_save') }}" class="needs-validation" novalidate autocomplete="off">{{ m.csrf() }}<input type="hidden" name="staff_id" value="">
+    <div class="modal-header"><h2 class="modal-title h5">Add staff account</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body"><div class="row g-3">
+      <div class="col-md-6"><label class="form-label" for="s_first">First name *</label><input class="form-control" id="s_first" name="first_name" required minlength="2" maxlength="50" pattern="[A-Za-zÀ-ÿñÑ][A-Za-zÀ-ÿñÑ .'\-]+"><div class="invalid-feedback">Letters only.</div></div>
+      <div class="col-md-6"><label class="form-label" for="s_last">Last name *</label><input class="form-control" id="s_last" name="last_name" required minlength="2" maxlength="50" pattern="[A-Za-zÀ-ÿñÑ][A-Za-zÀ-ÿñÑ .'\-]+"><div class="invalid-feedback">Letters only.</div></div>
+      <div class="col-md-6"><label class="form-label" for="s_email">Email *</label><input class="form-control" type="email" id="s_email" name="email" required maxlength="120"><div class="invalid-feedback">Enter a valid email.</div></div>
+      <div class="col-md-6"><label class="form-label" for="s_role">Role *</label><select class="form-select" id="s_role" name="role" required><option value="doctor">Doctor</option><option value="nurse">Nurse</option></select></div>
+      <div class="col-md-6"><label class="form-label" for="s_spec">Specialization / position</label><input class="form-control" id="s_spec" name="specialization" maxlength="100"></div>
+      <div class="col-md-6"><label class="form-label" for="s_contact">Mobile number</label><input class="form-control" id="s_contact" name="contact_number" pattern="(\+63|0)9\d{9}" placeholder="09171234567"><div class="invalid-feedback">PH mobile number.</div></div>
+      <div class="col-12"><label class="form-label" for="s_pw">Password</label><input class="form-control" type="password" id="s_pw" name="password" required minlength="8" data-password-rule autocomplete="new-password">
+        <div class="form-text pw-hint">Min. 8 characters with upper, lower case and a number.</div><div class="invalid-feedback">8+ characters with upper, lower case and a number.</div></div>
+    </div></div>
+    <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-teal" type="submit">Save</button></div>
+  </form></div></div></div>
+{% endblock %}

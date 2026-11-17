@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}My profile{% endblock %}
+{% block content %}
+{% set u = current_user %}{% set p = u.profile %}
+<div class="mb-4"><h1 class="page-title">{{ 'My Profile' if u.role == 'patient' else 'Profile' }}</h1><p class="page-sub">View and update your account details.</p></div>
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="cf-card text-center p-4">
+      <div class="avatar avatar-lg mx-auto mb-3">{% if u.photo_url %}<img src="{{ u.photo_url }}" alt="Profile photo">{% else %}{{ u.initial }}{% endif %}</div>
+      <h2 class="h5 fw-bold mb-0">{{ u.display_name }}</h2>
+      <div class="muted">{{ u.role_label }}{% if u.role == 'patient' %} · {{ p.patient_no }}{% elif p.employee_no %} · {{ p.employee_no }}{% endif %}</div>
+      <div class="small muted mt-1">{{ u.email }}</div>
+      <form method="post" enctype="multipart/form-data" class="mt-3 text-start needs-validation" novalidate>{{ m.csrf() }}
+        <input type="hidden" name="form_type" value="photo">
+        <label class="form-label" for="photo">Profile photo</label>
+        <input class="form-control" type="file" id="photo" name="photo" accept=".png,.jpg,.jpeg,.webp" required>
+        <div class="form-text">PNG, JPG or WEBP, up to 2 MB.</div>
+        <button class="btn btn-outline-teal w-100 mt-2" type="submit"><i class="bi bi-upload me-1"></i>Upload photo</button></form>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="cf-card mb-4"><div class="cf-card-header"><h5><i class="bi bi-person-lines-fill"></i> Personal information</h5></div>
+      <div class="cf-card-body">
+        <form method="post" class="needs-validation" novalidate>{{ m.csrf() }}<input type="hidden" name="form_type" value="details">
+          <div class="row g-3">
+            <div class="col-md-{{ 4 if u.role == 'patient' else 6 }}"><label class="form-label" for="first_name">First name *</label>
+              <input class="form-control" id="first_name" name="first_name" value="{{ p.first_name }}" required minlength="2" maxlength="50" pattern="[A-Za-zÀ-ÿñÑ][A-Za-zÀ-ÿñÑ .'\-]+"><div class="invalid-feedback">Letters only.</div></div>
+            {% if u.role == 'patient' %}
+            <div class="col-md-4"><label class="form-label" for="middle_name">Middle name</label>
+              <input class="form-control" id="middle_name" name="middle_name" value="{{ p.middle_name or '' }}" maxlength="50" pattern="[A-Za-zÀ-ÿñÑ .'\-]*"></div>{% endif %}
+            <div class="col-md-{{ 4 if u.role == 'patient' else 6 }}"><label class="form-label" for="last_name">Last name *</label>
+              <input class="form-control" id="last_name" name="last_name" value="{{ p.last_name }}" required minlength="2" maxlength="50" pattern="[A-Za-zÀ-ÿñÑ][A-Za-zÀ-ÿñÑ .'\-]+"><div class="invalid-feedback">Letters only.</div></div>
+            <div class="col-md-6"><label class="form-label" for="email">Email *</label>
+              <input class="form-control" type="email" id="email" name="email" value="{{ u.email }}" required maxlength="120"><div class="invalid-feedback">Enter a valid email.</div></div>
+            <div class="col-md-6"><label class="form-label" for="contact_number">Mobile number{{ ' *' if u.role == 'patient' }}</label>
+              <input class="form-control" id="contact_number" name="contact_number" value="{{ p.contact_number or '' }}" {{ 'required' if u.role == 'patient' }} pattern="(\+63|0)9\d{9}"><div class="invalid-feedback">Use a PH mobile number, e.g. 09171234567.</div></div>
+            {% if u.role == 'patient' %}
+            <div class="col-md-6"><label class="form-label" for="date_of_birth">Date of birth *</label>
+              <input class="form-control" type="date" id="date_of_birth" name="date_of_birth" value="{{ p.date_of_birth.isoformat() }}" required max="{{ today.isoformat() }}"></div>
+            <div class="col-md-6"><label class="form-label" for="gender">Gender *</label>
+              <select class="form-select" id="gender" name="gender" required>{% for g in ['Male','Female','Other'] %}<option {{ 'selected' if p.gender == g }}>{{ g }}</option>{% endfor %}</select></div>
+            <div class="col-12"><label class="form-label" for="address">Address *</label>
+              <input class="form-control" id="address" name="address" value="{{ p.address }}" required minlength="5" maxlength="255"></div>
+            {% elif u.role != 'admin' %}
+            <div class="col-12"><label class="form-label" for="specialization">Specialization / position</label>
+              <input class="form-control" id="specialization" name="specialization" value="{{ p.specialization or '' }}" maxlength="100"></div>{% endif %}
+          </div>
+          <button class="btn btn-teal mt-3" type="submit"><i class="bi bi-check2 me-1"></i>Save changes</button>
+        </form>
+      </div></div>
+
+    <div class="cf-card"><div class="cf-card-header"><h5><i class="bi bi-shield-lock"></i> Change password</h5></div>
+      <div class="cf-card-body">
+        <form method="post" class="needs-validation" novalidate autocomplete="off">{{ m.csrf() }}<input type="hidden" name="form_type" value="password">
+          <div class="row g-3">
+            <div class="col-12"><label class="form-label" for="current_password">Current password</label>
+              <input class="form-control" type="password" id="current_password" name="current_password" required autocomplete="current-password"><div class="invalid-feedback">Required.</div></div>
+            <div class="col-md-6"><label class="form-label" for="password">New password</label>
+              <input class="form-control" type="password" id="password" name="password" required minlength="8" data-password-rule data-strength="#meter" autocomplete="new-password">
+              <div class="password-meter mt-2" id="meter"><span></span></div><div class="invalid-feedback">8+ characters with upper, lower case and a number.</div></div>
+            <div class="col-md-6"><label class="form-label" for="confirm_password">Confirm new password</label>
+              <input class="form-control" type="password" id="confirm_password" name="confirm_password" required data-match="#password" autocomplete="new-password"><div class="invalid-feedback">Passwords must match.</div></div>
+          </div>
+          <button class="btn btn-navy mt-3" type="submit"><i class="bi bi-key me-1"></i>Update password</button>
+        </form>
+      </div></div>
+  </div>
+</div>
+{% endblock %}

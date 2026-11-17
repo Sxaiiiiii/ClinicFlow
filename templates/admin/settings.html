@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Clinic settings{% endblock %}
+{% block content %}
+<div class="mb-4"><h1 class="page-title">Clinic Settings</h1><p class="page-sub">Operating hours control which appointment slots can be booked.</p></div>
+<div class="cf-card"><div class="cf-card-body pt-3">
+  <form method="post" class="needs-validation" novalidate>{{ m.csrf() }}
+    <div class="row g-3">
+      <div class="col-md-6"><label class="form-label" for="clinic_name">Clinic name *</label><input class="form-control" id="clinic_name" name="clinic_name" value="{{ s.clinic_name }}" required maxlength="100"></div>
+      <div class="col-md-6"><label class="form-label" for="clinic_phone">Phone</label><input class="form-control" id="clinic_phone" name="clinic_phone" value="{{ s.clinic_phone }}" maxlength="30"></div>
+      <div class="col-12"><label class="form-label" for="clinic_address">Address</label><input class="form-control" id="clinic_address" name="clinic_address" value="{{ s.clinic_address }}" maxlength="200"></div>
+      <div class="col-md-6"><label class="form-label" for="map_query">Map location (latitude,longitude)</label><input class="form-control" id="map_query" name="map_query" value="{{ s.map_query }}" placeholder="14.2281661,121.3659242"><div class="form-text">Shown as a map on the home page.</div></div>
+      <div class="col-md-6"><label class="form-label" for="map_link">Google Maps link</label><input class="form-control" id="map_link" name="map_link" value="{{ s.map_link }}" placeholder="https://maps.app.goo.gl/..."></div>
+      <div class="col-md-3"><label class="form-label" for="open_time">Opens *</label><input class="form-control" type="time" id="open_time" name="open_time" value="{{ s.open_time }}" required></div>
+      <div class="col-md-3"><label class="form-label" for="close_time">Closes *</label><input class="form-control" type="time" id="close_time" name="close_time" value="{{ s.close_time }}" required></div>
+      <div class="col-md-3"><label class="form-label" for="slot_minutes">Appointment slot (minutes) *</label><input class="form-control" type="number" id="slot_minutes" name="slot_minutes" value="{{ s.slot_minutes }}" min="10" max="120" required></div>
+      <div class="col-md-3"><label class="form-label" for="avg_service_minutes">Avg. consultation (minutes) *</label><input class="form-control" type="number" id="avg_service_minutes" name="avg_service_minutes" value="{{ s.avg_service_minutes }}" min="1" max="120" required><div class="form-text">Used to estimate patient waiting time.</div></div>
+      <div class="col-12"><label class="form-label d-block">Operating days *</label>
+        {% for name in days %}<div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" name="operating_days" id="day{{ loop.index0 }}" value="{{ loop.index0 }}" {{ 'checked' if loop.index0 in active_days }}><label class="form-check-label" for="day{{ loop.index0 }}">{{ name[:3] }}</label></div>{% endfor %}</div>
+    </div>
+    <button class="btn btn-teal mt-4" type="submit"><i class="bi bi-check2 me-1"></i>Save settings</button>
+  </form>
+</div></div>
+{% endblock %}

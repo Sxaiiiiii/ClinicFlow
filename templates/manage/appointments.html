@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Appointments{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div><h1 class="page-title">Appointments</h1><p class="page-sub">Confirm requests, reschedule and manage the clinic calendar.</p></div>
+  <button class="btn btn-teal" data-bs-toggle="modal" data-bs-target="#bookModal"><i class="bi bi-calendar-plus me-1"></i>Book appointment</button>
+</div>
+<div class="cf-card"><div class="cf-card-body pt-3">
+  <form class="row g-2 mb-3" method="get">
+    <div class="col-md-4"><input class="form-control" type="search" name="q" value="{{ q }}" placeholder="Search patient, no. or reason" aria-label="Search"></div>
+    <div class="col-md-3"><select class="form-select" name="status" aria-label="Status"><option value="">All statuses</option>
+      {% for s in ['pending','confirmed','completed','cancelled','rejected'] %}<option value="{{ s }}" {{ 'selected' if status == s }}>{{ s|title }}</option>{% endfor %}</select></div>
+    <div class="col-md-3"><input class="form-control" type="date" name="date" value="{{ day }}" aria-label="Date"></div>
+    <div class="col-auto d-flex align-items-center">{% if current_user.role in ('doctor', 'nurse') %}<div class="form-check mb-0"><input class="form-check-input" type="checkbox" name="mine" value="1" id="mine" {{ 'checked' if mine }}><label class="form-check-label" for="mine">Only mine &amp; unassigned</label></div>{% endif %}</div>
+    <div class="col-auto"><button class="btn btn-navy" type="submit"><i class="bi bi-funnel me-1"></i>Filter</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('appointments.index') }}">Reset</a></div>
+  </form>
+  {% if items %}
+  <div class="table-wrap"><table class="cf-table">
+    <thead><tr><th>Date</th><th>Time</th><th>Patient</th><th>Reason</th><th>Assigned to</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+    <tbody>{% for a in items %}
+      <tr><td>{{ a.appointment_date|fmt_date }}</td><td>{{ a.appointment_time|fmt_time }}</td>
+        <td><a class="text-decoration-none fw-semibold" href="{{ url_for('patients.detail', patient_id=a.patient_id) }}">{{ a.patient.full_name }}</a><div class="small muted">{{ a.patient.patient_no }}</div></td>
+        <td>{{ a.reason }}</td><td>{{ a.staff.title_name if a.staff else 'Unassigned' }}</td><td>{{ m.badge(a.status) }}</td>
+        <td class="text-end text-nowrap">
+          {% if a.can_be_managed_by(current_user) %}
+          {% for act, icon, cls, label in [('confirm','bi-check-lg','success','Confirm'),('reject','bi-x-lg','danger','Reject'),('complete','bi-check2-all','teal','Mark completed'),('cancel','bi-slash-circle','danger','Cancel')] %}
+            {% if a.can_become({'confirm':'confirmed','reject':'rejected','complete':'completed','cancel':'cancelled'}[act]) %}
+            <form class="d-inline" method="post" action="{{ url_for('appointments.change_status', appointment_id=a.id) }}" {% if act in ('reject','cancel') %}data-confirm="{{ label }} this appointment for {{ a.patient.full_name }}?"{% endif %}>{{ m.csrf() }}
+              <input type="hidden" name="action" value="{{ act }}"><button class="btn btn-sm btn-outline-{{ cls }}" type="submit" title="{{ label }}"><i class="bi {{ icon }}"></i></button></form>
+            {% endif %}
+          {% endfor %}
+          {% if a.is_active %}<button class="btn btn-sm btn-outline-secondary js-reschedule" type="button" title="Reschedule" data-bs-toggle="modal" data-bs-target="#rescheduleModal"
+            data-id="{{ a.id }}" data-staff="{{ a.staff_id or '' }}" data-date="{{ a.appointment_date.isoformat() }}" data-action="{{ url_for('appointments.reschedule', appointment_id=a.id) }}"><i class="bi bi-calendar-event"></i></button>{% endif %}
+          {% else %}<span class="muted small" title="Only {{ a.staff.title_name }} or an admin can change this"><i class="bi bi-lock-fill"></i> {{ a.staff.title_name }}</span>{% endif %}
+        </td></tr>
+    {% endfor %}</tbody></table></div>
+  {% else %}{{ m.empty('bi-calendar2', 'No appointments match your filters.') }}{% endif %}
+</div></div>
+
+<div class="modal fade" id="bookModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content">
+  <form method="post" action="{{ url_for('appointments.create') }}" class="needs-validation" novalidate>{{ m.csrf() }}
+    <div class="modal-header"><h2 class="modal-title h5">Book an appointment</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body"><div class="row g-3 slot-picker">
+      <div class="col-12"><label class="form-label" for="b_patient">Patient *</label>
+        <select class="form-select" id="b_patient" name="patient_id" required><option value="">Select patient…</option>
+          {% for p in patients %}<option value="{{ p.id }}">{{ p.last_name }}, {{ p.first_name }} ({{ p.patient_no }})</option>{% endfor %}</select><div class="invalid-feedback">Select a patient.</div></div>
+      <div class="col-md-6"><label class="form-label" for="b_staff">Doctor / nurse</label>
+        <select class="form-select" id="b_staff" name="staff_id"><option value="">Unassigned</option>{% for s in clinicians %}<option value="{{ s.id }}">{{ s.title_name }} — {{ s.user.role_label }}</option>{% endfor %}</select></div>
+      <div class="col-md-6"><label class="form-label" for="b_date">Date *</label>
+        <input class="form-control" type="date" id="b_date" name="appointment_date" min="{{ today.isoformat() }}" required><div class="invalid-feedback">Choose a date.</div></div>
+      <div class="col-md-6"><label class="form-label" for="b_time">Time *</label>
+        <select class="form-select" id="b_time" name="appointment_time" required><option value="">Select a time…</option></select><div class="invalid-feedback">Choose a time slot.</div>
+        <div class="form-text slot-hint">Pick a date to see available times.</div></div>
+      <div class="col-md-6"><label class="form-label" for="b_reason">Reason for visit *</label>
+        <input class="form-control" id="b_reason" name="reason" required minlength="3" maxlength="255"><div class="invalid-feedback">Enter the reason (3+ characters).</div></div>
+    </div></div>
+    <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-teal" type="submit">Book &amp; confirm</button></div>
+  </form></div></div></div>
+
+<div class="modal fade" id="rescheduleModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+  <form method="post" action="" class="needs-validation" novalidate>{{ m.csrf() }}
+    <div class="modal-header"><h2 class="modal-title h5">Reschedule appointment</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body slot-picker">
+      <label class="form-label" for="r_date">New date *</label><input class="form-control mb-3" type="date" id="r_date" name="appointment_date" min="{{ today.isoformat() }}" required>
+      <label class="form-label" for="r_time">New time *</label><select class="form-select" id="r_time" name="appointment_time" required><option value="">Select a time…</option></select>
+      <div class="form-text slot-hint">Pick a date to see available times.</div></div>
+    <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button><button class="btn btn-teal" type="submit">Reschedule</button></div>
+  </form></div></div></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/appointments.js') }}"></script>{% endblock %}

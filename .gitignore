@@ -1,0 +1,29 @@
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Flask
+instance/
+
+# Uploaded profile images
+static/uploads/profiles/*
+!static/uploads/profiles/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# OS
+.DS_Store

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Clinic appointments & queue system{% endblock %}
+{% block body %}
+<nav class="home-nav navbar navbar-expand-lg sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="#home"><img src="{{ url_for('static', filename='images/logo.svg') }}" width="38" alt="ClinicFlow logo">ClinicFlow</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#homeNav" aria-label="Menu"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="homeNav">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#who">Who it's for</a></li>
+        <li class="nav-item"><a class="nav-link" href="#how">How it works</a></li>
+        <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+        <li class="nav-item"><a class="nav-link" href="#gallery">Gallery</a></li>
+        <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+      </ul>
+      <div class="d-flex gap-2 mt-2 mt-lg-0">
+        <a class="btn btn-outline-teal" href="{{ url_for('auth.login') }}">Log in</a>
+        <a class="btn btn-teal" href="{{ url_for('auth.register') }}">Sign up</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<header class="hero-home" id="home">
+  <div class="container"><div class="row align-items-center g-4 g-xl-5">
+    <div class="col-lg-6">
+      <span class="eyebrow">Clinic queue &amp; scheduling system</span>
+      <h1>Better care starts with a smoother visit.</h1>
+      <p class="lead">Book your appointment online, get your queue number, and check your turn from your phone. ClinicFlow keeps patients informed and clinic staff organised.</p>
+      <div class="d-flex flex-wrap gap-2 mt-4">
+        <a class="btn btn-teal btn-lg-cf" href="{{ url_for('auth.register') }}">Create an account</a>
+        <a class="btn btn-outline-teal btn-lg-cf" href="{{ url_for('auth.login') }}">Log in</a>
+      </div>
+      <div class="quick-facts">
+        <div><i class="bi bi-calendar-check"></i>Online booking</div>
+        <div><i class="bi bi-people"></i>Live queue numbers</div>
+        <div><i class="bi bi-shield-lock"></i>Private records</div>
+      </div>
+    </div>
+    <div class="col-lg-6"><div class="hero-photo-wrap"><img class="hero-photo" src="{{ url_for('static', filename='images/hero.jpg') }}" alt="Clinic reception area"></div></div>
+  </div></div>
+</header>
+
+<section class="sec" id="who"><div class="container">
+  <span class="eyebrow">Who it's for</span>
+  <h2 class="sec-title mt-1">One system for the whole clinic</h2>
+  <p class="sec-sub mb-4">Everyone gets their own dashboard and only sees what they need.</p>
+  <div class="row g-4">
+    <div class="col-md-4"><div class="who-card"><div class="ico"><i class="bi bi-person-heart"></i></div><h3 class="h5 fw-bold mt-3">Patients</h3>
+      <ul><li>Register and log in</li><li>Book or cancel appointments</li><li>See your queue number and status</li><li>Update your own profile</li></ul></div></div>
+    <div class="col-md-4"><div class="who-card"><div class="ico"><i class="bi bi-clipboard2-pulse"></i></div><h3 class="h5 fw-bold mt-3">Doctors &amp; nurses</h3>
+      <ul><li>Confirm appointment requests</li><li>Add walk-ins, call the next patient</li><li>Write consultation records</li><li>View daily reports</li></ul></div></div>
+    <div class="col-md-4"><div class="who-card"><div class="ico"><i class="bi bi-gear-wide-connected"></i></div><h3 class="h5 fw-bold mt-3">Administrators</h3>
+      <ul><li>Manage staff accounts</li><li>Set clinic hours and slot length</li><li>Manage all patient records</li><li>Review activity logs</li></ul></div></div>
+  </div>
+</div></section>
+
+<section class="sec sec-alt" id="how"><div class="container">
+  <span class="eyebrow">How it works</span>
+  <h2 class="sec-title mt-1 mb-4">Three simple steps</h2>
+  <div class="steps">
+    <div class="step"><span class="n">Step 1</span><h3 class="h5 fw-bold mt-3">Create your account</h3><p class="muted mb-0">Fill in your details once. It only takes a minute.</p></div>
+    <div class="step"><span class="n">Step 2</span><h3 class="h5 fw-bold mt-3">Book a time slot</h3><p class="muted mb-0">Choose a date and an open time, and tell us the reason for your visit.</p></div>
+    <div class="step"><span class="n">Step 3</span><h3 class="h5 fw-bold mt-3">Follow your queue</h3><p class="muted mb-0">Check your number on your phone and arrive when it's almost your turn.</p></div>
+  </div>
+</div></section>
+
+<section class="sec" id="features"><div class="container"><div class="row g-5 align-items-center">
+  <div class="col-lg-6"><img class="photo-card" src="{{ url_for('static', filename='images/login.jpg') }}" alt="Clinic front desk" loading="lazy"></div>
+  <div class="col-lg-6"><span class="eyebrow">Features</span><h2 class="sec-title mt-1">Everything the front desk needs</h2>
+    <p class="sec-sub">Built to replace the paper logbook and the crowded waiting area.</p>
+    <ul class="feat-list">
+      <li>Online appointment booking</li><li>Automatic daily queue numbers</li><li>Walk-in registration</li><li>Call next patient</li>
+      <li>Patient records and history</li><li>Consultation notes</li><li>Reports with charts</li><li>Email notifications</li></ul>
+    <a class="btn btn-teal btn-lg-cf mt-3" href="{{ url_for('auth.register') }}">Get started</a></div>
+</div></div></section>
+
+<section class="sec sec-alt" id="gallery"><div class="container">
+  <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-4">
+    <div><span class="eyebrow">Take a look inside</span><h2 class="sec-title mt-1 mb-0">A clean, calm place to get care</h2></div>
+    <a class="btn btn-outline-teal" href="#contact">Find the clinic <i class="bi bi-arrow-right ms-1"></i></a></div>
+  <div class="gallery">
+    <img class="g-main" src="{{ url_for('static', filename='images/clinic-reception.jpg') }}" alt="Clinic reception desk and hallway" loading="lazy">
+    <img src="{{ url_for('static', filename='images/clinic-lounge.jpg') }}" alt="Bright clinic treatment area" loading="lazy">
+    <img src="{{ url_for('static', filename='images/hero.jpg') }}" alt="Clinic front desk" loading="lazy">
+  </div>
+</div></section>
+
+<section class="sec find-us" id="contact"><div class="container">
+  <span class="eyebrow">Where to find us</span>
+  <h2 class="sec-title mt-1 mb-4">Visit {{ clinic.clinic_name }}</h2>
+  <div class="row g-4 align-items-stretch">
+    <div class="col-lg-4"><div class="find-card">
+      <div class="find-row"><i class="bi bi-geo-alt-fill"></i><div><b>Address</b><br>{{ clinic.clinic_address }}</div></div>
+      <div class="find-row"><i class="bi bi-clock-fill"></i><div><b>Clinic hours</b><br>{{ clinic.open_time }} to {{ clinic.close_time }}</div></div>
+      <div class="find-row"><i class="bi bi-telephone-fill"></i><div><b>Phone</b><br>{{ clinic.clinic_phone }}</div></div>
+      {% if clinic.map_query %}<div class="d-grid gap-2 mt-auto pt-2">
+        <a class="btn btn-teal" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination={{ clinic.map_query|urlencode }}"><i class="bi bi-sign-turn-right me-1"></i>Get directions</a>
+        {% if clinic.map_link %}<a class="btn btn-outline-teal" target="_blank" rel="noopener" href="{{ clinic.map_link }}"><i class="bi bi-box-arrow-up-right me-1"></i>Open in Google Maps</a>{% endif %}</div>{% endif %}
+    </div></div>
+    <div class="col-lg-8">
+      {% if clinic.map_query %}<iframe class="map-big" title="Map showing the clinic location" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+        src="https://maps.google.com/maps?q={{ clinic.map_query|urlencode }}&z=17&hl=en&output=embed"></iframe>
+      {% else %}<div class="map-big d-flex align-items-center justify-content-center muted">Map not set yet. Add it in Clinic Settings.</div>{% endif %}
+    </div>
+  </div>
+</div></section>
+
+<section class="cta-band"><div class="container"><h2 class="fw-bold">Ready for a smoother clinic visit?</h2>
+  <a class="btn btn-light btn-lg-cf fw-bold mt-2" href="{{ url_for('auth.register') }}">Sign up as a patient</a></div></section>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="row g-4 foot-top">
+      <div class="col-lg-4">
+        <a class="foot-brand" href="#home"><img src="{{ url_for('static', filename='images/logo.svg') }}" width="40" alt="ClinicFlow logo"><span>ClinicFlow</span></a>
+        <p class="foot-text">A clinic queue and scheduling system that helps patients book online and helps staff run a smoother day.</p>
+        <p class="foot-tag">Better Care. Smoother Flow.</p>
+      </div>
+      <div class="col-6 col-lg-2"><h3 class="foot-h">Quick links</h3>
+        <ul class="foot-links"><li><a href="#home">Home</a></li><li><a href="#who">Who it's for</a></li><li><a href="#how">How it works</a></li><li><a href="#features">Features</a></li><li><a href="#gallery">Gallery</a></li><li><a href="#contact">Find us</a></li></ul></div>
+      <div class="col-6 col-lg-2"><h3 class="foot-h">Account</h3>
+        <ul class="foot-links"><li><a href="{{ url_for('auth.login') }}">Log in</a></li><li><a href="{{ url_for('auth.register') }}">Sign up</a></li><li><a href="{{ url_for('auth.login', **{'as': 'staff'}) }}">Staff login</a></li><li><a href="{{ url_for('auth.forgot_password') }}">Forgot password</a></li></ul></div>
+      <div class="col-lg-4"><h3 class="foot-h">Contact</h3>
+        <ul class="foot-contact">
+          <li><i class="bi bi-hospital"></i>{{ clinic.clinic_name }}</li>
+          <li><i class="bi bi-geo-alt"></i>{{ clinic.clinic_address }}</li>
+          <li><i class="bi bi-telephone"></i>{{ clinic.clinic_phone }}</li>
+          <li><i class="bi bi-clock"></i>Open {{ clinic.open_time }} to {{ clinic.close_time }}</li></ul></div>
+    </div>
+    <div class="foot-bottom">
+      <span>&copy; {{ now.year }} ClinicFlow. All rights reserved.</span>
+      <a href="#home">Back to top <i class="bi bi-arrow-up-short"></i></a>
+    </div>
+  </div>
+</footer>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}My dashboard{% endblock %}
+{% block content %}
+{{ m.welcome('Welcome, ' ~ current_user.short_name ~ '!', 'Patient No. ' ~ patient.patient_no) }}
+<div class="row g-4">
+  <div class="col-lg-6"><div class="cf-card h-100"><div class="cf-card-header"><h5><i class="bi bi-calendar-event"></i> Upcoming appointment</h5></div><div class="cf-card-body">
+    {% if upcoming %}<div class="d-flex align-items-center gap-3"><div class="welcome-ico" style="width:56px;height:56px;font-size:1.5rem"><i class="bi bi-calendar-check"></i></div>
+      <div><div class="fw-bold fs-5">{{ upcoming.appointment_date|fmt_date }} · {{ upcoming.appointment_time|fmt_time }}</div>
+        <div>{{ upcoming.reason }}</div><div class="small muted">{{ upcoming.staff.title_name if upcoming.staff else 'Doctor to be assigned' }}</div></div>
+      <div class="ms-auto">{{ m.badge(upcoming.status) }}</div></div>
+    {% else %}{{ m.empty('bi-calendar2', 'You have no upcoming appointments.') }}<div class="text-center"><a class="btn btn-teal" href="{{ url_for('patient.book') }}">Book an appointment</a></div>{% endif %}
+  </div></div></div>
+  <div class="col-lg-6"><div class="cf-card h-100"><div class="cf-card-header"><h5><i class="bi bi-people"></i> Current queue status</h5><a class="view-all" href="{{ url_for('patient.queue_status') }}">Details <i class="bi bi-arrow-right"></i></a></div><div class="cf-card-body">
+    {% if entry %}<div class="text-center"><div class="muted small">Your queue number</div><div class="display-4 fw-bold text-teal">{{ entry.code }}</div>
+      {{ m.badge(entry.status) }}{% if entry.status == 'waiting' %}<div class="mt-2">{{ ahead }} patient(s) ahead of you</div>{% else %}<div class="mt-2">It's your turn — please proceed to the consultation room.</div>{% endif %}</div>
+    {% else %}{{ m.empty('bi-people', "You're not in today's queue.") }}{% endif %}</div></div></div>
+  <div class="col-lg-7"><div class="cf-card h-100"><div class="cf-card-header"><h5><i class="bi bi-clock-history"></i> Appointment history</h5><a class="view-all" href="{{ url_for('patient.appointments') }}">View All <i class="bi bi-arrow-right"></i></a></div><div class="cf-card-body">
+    {% if history %}<div class="table-wrap"><table class="cf-table"><thead><tr><th>Date</th><th>Time</th><th>Reason</th><th>Status</th></tr></thead><tbody>
+      {% for a in history %}<tr><td>{{ a.appointment_date|fmt_date }}</td><td>{{ a.appointment_time|fmt_time }}</td><td>{{ a.reason }}</td><td>{{ m.badge(a.status) }}</td></tr>{% endfor %}</tbody></table></div>
+    {% else %}{{ m.empty('bi-calendar2', 'No appointment history yet.') }}{% endif %}</div></div></div>
+  <div class="col-lg-5"><div class="cf-card h-100"><div class="cf-card-header"><h5><i class="bi bi-bell"></i> Notifications</h5></div><div class="cf-card-body">
+    {% if notifications %}<ul class="activity-list">{% for n in notifications %}<li><span class="ico"><i class="bi {{ n.icon }}"></i></span><span><b>{{ n.action }}</b><br><span class="small muted">{{ n.details }}</span></span><time>{{ n.created_at|fmt_date }}</time></li>{% endfor %}</ul>
+    {% else %}{{ m.empty('bi-bell', 'No notifications yet.') }}{% endif %}</div></div></div>
+</div>
+{% endblock %}

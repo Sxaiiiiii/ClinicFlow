@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}{{ 'Edit patient' if patient else 'Register patient' }}{% endblock %}
+{% macro val(field) %}{{ form.get(field) if form and form.get(field) is not none else (patient[field] if patient and patient[field] is not none else '') }}{% endmacro %}
+{% block content %}
+<div class="mb-4"><h1 class="page-title">{{ 'Edit patient' if patient else 'Register patient' }}</h1>
+  <p class="page-sub">{% if patient %}{{ patient.patient_no }} · {{ patient.full_name }}{% else %}A patient number is generated automatically.{% endif %}</p></div>
+<div class="cf-card"><div class="cf-card-body pt-3">
+  <form method="post" class="needs-validation" novalidate>{{ m.csrf() }}
+    {% set f = form if form else {} %}
+    <div class="row g-3">
+      <div class="col-md-4"><label class="form-label" for="first_name">First name *</label>
+        <input class="form-control" id="first_name" name="first_name" value="{{ f.get('first_name', patient.first_name if patient else '') }}" required minlength="2" maxlength="50" pattern="[A-Za-zÀ-ÿñÑ][A-Za-zÀ-ÿñÑ .'\-]+"><div class="invalid-feedback">Letters only, at least 2.</div></div>
+      <div class="col-md-4"><label class="form-label" for="middle_name">Middle name</label>
+        <input class="form-control" id="middle_name" name="middle_name" value="{{ f.get('middle_name', (patient.middle_name or '') if patient else '') }}" maxlength="50" pattern="[A-Za-zÀ-ÿñÑ .'\-]*"><div class="invalid-feedback">Letters only.</div></div>
+      <div class="col-md-4"><label class="form-label" for="last_name">Last name *</label>
+        <input class="form-control" id="last_name" name="last_name" value="{{ f.get('last_name', patient.last_name if patient else '') }}" required minlength="2" maxlength="50" pattern="[A-Za-zÀ-ÿñÑ][A-Za-zÀ-ÿñÑ .'\-]+"><div class="invalid-feedback">Letters only, at least 2.</div></div>
+      <div class="col-md-4"><label class="form-label" for="date_of_birth">Date of birth *</label>
+        <input class="form-control" type="date" id="date_of_birth" name="date_of_birth" value="{{ f.get('date_of_birth', patient.date_of_birth.isoformat() if patient else '') }}" required max="{{ today.isoformat() }}"><div class="invalid-feedback">Enter a valid date of birth.</div></div>
+      {% set g = f.get('gender', patient.gender if patient else '') %}
+      <div class="col-md-4"><label class="form-label" for="gender">Gender *</label>
+        <select class="form-select" id="gender" name="gender" required><option value="">Select…</option>{% for opt in ['Male','Female','Other'] %}<option {{ 'selected' if g == opt }}>{{ opt }}</option>{% endfor %}</select><div class="invalid-feedback">Select a gender.</div></div>
+      <div class="col-md-4"><label class="form-label" for="contact_number">Contact number *</label>
+        <input class="form-control" id="contact_number" name="contact_number" value="{{ f.get('contact_number', patient.contact_number if patient else '') }}" required pattern="(\+63|0)9\d{9}" placeholder="09171234567"><div class="invalid-feedback">Use a PH mobile number, e.g. 09171234567.</div></div>
+      <div class="col-md-6"><label class="form-label" for="email">Email</label>
+        <input class="form-control" type="email" id="email" name="email" value="{{ f.get('email', (patient.email or '') if patient else '') }}" maxlength="120"><div class="invalid-feedback">Enter a valid email.</div></div>
+      <div class="col-md-6"><label class="form-label" for="address">Address *</label>
+        <input class="form-control" id="address" name="address" value="{{ f.get('address', patient.address if patient else '') }}" required minlength="5" maxlength="255"><div class="invalid-feedback">Enter an address (at least 5 characters).</div></div>
+    </div>
+    <div class="mt-4 d-flex gap-2"><button class="btn btn-teal" type="submit"><i class="bi bi-check2 me-1"></i>{{ 'Save changes' if patient else 'Register patient' }}</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('patients.detail', patient_id=patient.id) if patient else url_for('patients.index') }}">Cancel</a></div>
+  </form>
+</div></div>
+{% endblock %}

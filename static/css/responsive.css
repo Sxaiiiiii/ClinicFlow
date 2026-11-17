@@ -1,0 +1,24 @@
+@media (max-width: 991.98px) {
+  .auth-split { grid-template-columns: 1fr; }
+  .auth-brand { display: none; }
+  .sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); box-shadow: 8px 0 30px rgba(0,0,0,.35); }
+  .sidebar-backdrop.show { display: block; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1035; }
+  .topbar { padding: .75rem 1rem; }
+  .content { padding: 1rem; }
+}
+@media (max-width: 575.98px) {
+  .auth-card { padding: 1.5rem; border-radius: 18px; }
+  .page-title { font-size: 1.25rem; }
+  .now-serving .code { font-size: 2.6rem; }
+  .user-chip .who { display: none; }
+}
+@media print {
+  .sidebar, .topbar, .no-print, .btn, .alert { display: none !important; }
+  body { background: #fff; }
+  .content { padding: 0; }
+  .cf-card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+  .chart-box { height: 220px; }
+  .print-only { display: block !important; }
+}
+.print-only { display: none; }

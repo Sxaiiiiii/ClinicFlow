@@ -1,0 +1,61 @@
+/* ClinicFlow — base styles & design tokens */
+:root {
+  --navy: #12344B; --teal: #0B9C9A; --teal-dark: #087E8B; --light-blue: #EAF5FA;
+  --white: #FFFFFF; --bg: #F4F8FA; --muted: #68839A; --border: #DCE8EE;
+  --radius: 16px; --shadow: 0 6px 20px rgba(18, 52, 75, .08);
+}
+* { box-sizing: border-box; }
+body { font-family: "Nunito", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+       background: var(--bg); color: var(--navy); }
+a { color: var(--teal-dark); }
+.text-muted, .muted { color: var(--muted) !important; }
+.text-navy { color: var(--navy); } .text-teal { color: var(--teal); }
+
+.btn { border-radius: 12px; font-weight: 600; transition: all .2s ease; }
+.btn-teal { background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: #fff; border: 0; }
+.btn-teal:hover { color: #fff; filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 6px 14px rgba(11,156,154,.3); }
+.btn-outline-teal { border: 1.5px solid var(--teal); color: var(--teal-dark); background: transparent; }
+.btn-outline-teal:hover { background: var(--teal); color: #fff; }
+.btn-navy { background: var(--navy); color: #fff; } .btn-navy:hover { background: #0d2638; color: #fff; }
+
+.form-control, .form-select { border-radius: 12px; border: 1.5px solid var(--border); padding: .6rem .85rem; }
+.form-control:focus, .form-select:focus { border-color: var(--teal); box-shadow: 0 0 0 .2rem rgba(11,156,154,.15); }
+.form-label { font-weight: 600; font-size: .88rem; color: var(--navy); margin-bottom: .3rem; }
+.input-group .btn { border-radius: 0 12px 12px 0; }
+
+/* cards */
+.cf-card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid rgba(220,232,238,.7); }
+.cf-card-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem .5rem; }
+.cf-card-header h5 { margin: 0; font-size: 1.05rem; font-weight: 700; display: flex; gap: .5rem; align-items: center; }
+.cf-card-header h5 i { color: var(--teal); font-size: 1.25rem; }
+.cf-card-body { padding: .5rem 1.25rem 1.25rem; }
+.view-all { font-weight: 600; font-size: .9rem; text-decoration: none; }
+
+/* tables */
+.cf-table { width: 100%; margin: 0; }
+.cf-table th { background: var(--light-blue); color: var(--navy); font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; padding: .7rem 1rem; border: 0; white-space: nowrap; }
+.cf-table td { padding: .75rem 1rem; vertical-align: middle; border-top: 1px solid var(--border); font-size: .93rem; }
+.cf-table tr:hover td { background: #FAFDFE; }
+.table-wrap { overflow-x: auto; border-radius: 12px; }
+
+/* status badges */
+.badge-status { display: inline-block; padding: .28rem .75rem; border-radius: 999px; font-size: .78rem; font-weight: 700; text-transform: capitalize; }
+.s-confirmed, .s-completed, .s-active, .s-success { background: #D8F5E4; color: #12794A; }
+.s-pending, .s-waiting { background: #FFE9CF; color: #B25E09; }
+.s-serving { background: #DFF0FF; color: #0B5FA5; }
+.s-cancelled, .s-rejected, .s-inactive { background: #FDE0E0; color: #B42318; }
+.s-walk-in { background: #EDE7FF; color: #5B3FBF; } .s-scheduled { background: #DDF4F3; color: #087E8B; }
+
+.avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--teal), var(--navy)); color: #fff; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; flex: 0 0 auto; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-lg { width: 110px; height: 110px; font-size: 2.4rem; }
+
+.empty-state { text-align: center; padding: 2rem 1rem; color: var(--muted); }
+.empty-state i { font-size: 2rem; opacity: .6; display: block; margin-bottom: .4rem; }
+.alert { border-radius: 12px; border: 0; }
+.password-meter { height: 6px; border-radius: 6px; background: var(--border); overflow: hidden; }
+.password-meter > span { display: block; height: 100%; width: 0; transition: width .25s, background .25s; }
+.invalid-feedback { font-size: .82rem; }
+.page-title { font-weight: 800; font-size: 1.5rem; margin: 0; } .page-sub { color: var(--muted); margin: 0; }
+
+h1, h2, h3, h4, h5, .page-title, .brand-row strong { font-family: "Poppins", "Nunito", sans-serif; }

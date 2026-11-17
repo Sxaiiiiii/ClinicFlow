@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}{{ heading }}{% endblock %}
+{% block body %}
+<div class="auth-panel" style="min-height:100vh"><div class="auth-card text-center">
+  <div class="mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:64px;height:64px;border-radius:50%;background:var(--light-blue);color:var(--teal-dark);font-size:1.8rem"><i class="bi bi-envelope-check"></i></div>
+  <h2 class="fw-bold">{{ heading }}</h2>
+  <p class="muted">We sent a 6-digit code to<br><b class="text-navy">{{ email }}</b></p>
+  {{ m.flashes() }}
+  <form method="post" class="needs-validation" novalidate>{{ m.csrf() }}
+    <input class="form-control code-input" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="\d{6}" placeholder="000000" required autofocus aria-label="6-digit code">
+    <div class="invalid-feedback">Enter the 6-digit code.</div>
+    <button class="btn btn-teal w-100 py-2 mt-3" type="submit"><i class="bi bi-check2-circle me-1"></i>Confirm code</button>
+  </form>
+  <form method="post" action="{{ resend_url }}" class="mt-3">{{ m.csrf() }}
+    <span class="muted small">Didn't get it? Check your spam folder or</span>
+    <button class="btn btn-link btn-sm p-0 align-baseline" type="submit">resend the code</button></form>
+  <p class="mt-3 mb-0 small"><a href="{{ back_url }}"><i class="bi bi-arrow-left"></i> {{ back_label }}</a></p>
+</div></div>
+{% endblock %}

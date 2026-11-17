@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Activity logs{% endblock %}
+{% block content %}
+<div class="mb-4"><h1 class="page-title">Activity Logs</h1><p class="page-sub">The latest 300 recorded actions in the system.</p></div>
+<div class="cf-card"><div class="cf-card-body pt-3">
+  <form class="row g-2 mb-3" method="get"><div class="col-md-6 col-lg-4"><input class="form-control" type="search" name="q" value="{{ q }}" placeholder="Search action or details" aria-label="Search logs"></div>
+    <div class="col-auto"><button class="btn btn-navy" type="submit"><i class="bi bi-search me-1"></i>Search</button>{% if q %}<a class="btn btn-outline-secondary ms-1" href="{{ url_for('admin.logs') }}">Clear</a>{% endif %}</div></form>
+  {% if logs %}<div class="table-wrap"><table class="cf-table"><thead><tr><th>When</th><th>Action</th><th>Details</th><th>By</th></tr></thead><tbody>
+    {% for l in logs %}<tr><td class="text-nowrap">{{ l.created_at|fmt_dt }}</td><td><i class="bi {{ l.icon }} text-teal me-1"></i>{{ l.action }}</td><td>{{ l.details }}</td><td>{{ l.user.display_name if l.user else 'System' }}</td></tr>{% endfor %}
+  </tbody></table></div>{% else %}{{ m.empty('bi-clock-history', 'No activity recorded.') }}{% endif %}
+</div></div>
+{% endblock %}

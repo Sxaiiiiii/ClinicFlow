@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block body %}
+<div class="auth-panel" style="min-height:100vh">
+  <div class="auth-card text-center">
+    <img src="{{ url_for('static', filename='images/logo.svg') }}" width="64" alt="ClinicFlow">
+    <div class="display-3 fw-bold text-teal mt-2">{{ code }}</div>
+    <h1 class="h4">{{ title }}</h1>
+    <p class="muted">{{ message }}</p>
+    <a class="btn btn-teal px-4" href="{{ url_for('auth.index') }}"><i class="bi bi-house-door me-1"></i>Back to home</a>
+  </div>
+</div>
+{% endblock %}

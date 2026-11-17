@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Medical records{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div><h1 class="page-title">Medical Records</h1><p class="page-sub">Consultation history. Visible to authorised clinic staff only.</p></div>
+  {% if current_user.role in ('doctor', 'nurse') %}<a class="btn btn-teal" href="{{ url_for('records.create') }}"><i class="bi bi-file-earmark-plus me-1"></i>New consultation</a>{% endif %}
+</div>
+<div class="cf-card"><div class="cf-card-body pt-3">
+  <form class="row g-2 mb-3" method="get"><div class="col-md-6 col-lg-4"><input class="form-control" type="search" name="q" value="{{ q }}" placeholder="Search patient, complaint or diagnosis" aria-label="Search records"></div>
+    <div class="col-auto"><button class="btn btn-navy" type="submit"><i class="bi bi-search me-1"></i>Search</button>{% if q %}<a class="btn btn-outline-secondary ms-1" href="{{ url_for('records.index') }}">Clear</a>{% endif %}</div></form>
+  {% if records %}
+  <div class="table-wrap"><table class="cf-table"><thead><tr><th>Date</th><th>Patient</th><th>Complaint</th><th>Diagnosis</th><th>Attending</th><th></th></tr></thead><tbody>
+    {% for r in records %}<tr><td class="text-nowrap">{{ r.consultation_date|fmt_dt }}</td>
+      <td><a class="text-decoration-none fw-semibold" href="{{ url_for('patients.detail', patient_id=r.patient_id) }}">{{ r.patient.full_name }}</a></td>
+      <td>{{ r.chief_complaint|truncate(60) }}</td><td>{{ r.diagnosis|truncate(60) }}</td><td>{{ r.staff.title_name }}</td>
+      <td class="text-end"><button class="btn btn-sm btn-outline-teal" type="button" data-bs-toggle="collapse" data-bs-target="#rec{{ r.id }}" aria-expanded="false"><i class="bi bi-chevron-down"></i></button></td></tr>
+      <tr class="collapse" id="rec{{ r.id }}"><td colspan="6" class="bg-light"><div class="row g-3 small">
+        <div class="col-md-6"><b>Chief complaint</b><br>{{ r.chief_complaint }}</div><div class="col-md-6"><b>Diagnosis</b><br>{{ r.diagnosis }}</div>
+        <div class="col-md-6"><b>Treatment</b><br>{{ r.treatment }}</div><div class="col-md-6"><b>Recommendations</b><br>{{ r.recommendations or '—' }}</div>
+        <div class="col-12"><b>Notes</b><br>{{ r.notes or '—' }}</div></div></td></tr>
+    {% endfor %}</tbody></table></div>
+  {% else %}{{ m.empty('bi-file-earmark-medical', 'No consultation records found.') }}{% endif %}
+</div></div>
+{% endblock %}

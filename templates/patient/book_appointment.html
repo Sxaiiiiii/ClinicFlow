@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% import "_macros.html" as m with context %}
+{% block title %}Book appointment{% endblock %}
+{% block content %}
+<div class="mb-4"><h1 class="page-title">Book an Appointment</h1><p class="page-sub">Clinic hours: {{ clinic.open_time }} – {{ clinic.close_time }}. Your request is confirmed by clinic staff.</p></div>
+<div class="cf-card" style="max-width:760px"><div class="cf-card-body pt-3">
+  <form method="post" class="needs-validation" novalidate>{{ m.csrf() }}
+    <div class="row g-3 slot-picker">
+      <div class="col-md-6"><label class="form-label" for="staff_id">Preferred doctor</label>
+        <select class="form-select" id="staff_id" name="staff_id"><option value="">Any available doctor</option>
+          {% for d in doctors %}<option value="{{ d.id }}" {{ 'selected' if form.get('staff_id') == d.id|string }}>{{ d.title_name }}{% if d.specialization %} — {{ d.specialization }}{% endif %}</option>{% endfor %}</select></div>
+      <div class="col-md-6"><label class="form-label" for="appointment_date">Date *</label>
+        <input class="form-control" type="date" id="appointment_date" name="appointment_date" value="{{ form.get('appointment_date', '') }}" min="{{ today.isoformat() }}" required><div class="invalid-feedback">Choose a date.</div></div>
+      <div class="col-md-6"><label class="form-label" for="appointment_time">Time *</label>
+        <select class="form-select" id="appointment_time" name="appointment_time" data-selected="{{ form.get('appointment_time', '') }}" required><option value="">Select a time…</option></select>
+        <div class="invalid-feedback">Choose a time slot.</div><div class="form-text slot-hint">Pick a date to see available times.</div></div>
+      <div class="col-md-6"><label class="form-label" for="reason">Reason for visit *</label>
+        <input class="form-control" id="reason" name="reason" value="{{ form.get('reason', '') }}" required minlength="3" maxlength="255" placeholder="e.g. Fever, check-up"><div class="invalid-feedback">Tell us the reason (3+ characters).</div></div>
+    </div>
+    <button class="btn btn-teal mt-4" type="submit"><i class="bi bi-calendar-plus me-1"></i>Request appointment</button>
+  </form>
+</div></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/appointments.js') }}"></script>{% endblock %}
